@@ -60,15 +60,10 @@ app = FastAPI(title="OMS Microservice", version="1.0.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"], 
+    allow_headers=["*"], 
 )
 
 @app.exception_handler(Exception)
@@ -81,6 +76,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.exception_handler(400)
 async def bad_request_handler(request: Request, exc: Exception):
+    logger.error(f"Bad Request on {request.url}: {exc}")
     return JSONResponse(
         status_code=400,
         content={"error": "Bad Request", "detail": str(exc), "code": 400}

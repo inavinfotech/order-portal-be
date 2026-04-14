@@ -5,6 +5,8 @@ import uuid
 
 class OrderItemBase(BaseModel):
     product_id: str
+    product_name: Optional[str] = None
+    sku: Optional[str] = None
     quantity: int = Field(..., gt=0)
     unit_price: float = Field(..., ge=0)
 

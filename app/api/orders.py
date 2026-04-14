@@ -84,19 +84,21 @@ def create_admin_order(
 def read_orders(
     skip: int = 0, 
     limit: int = 100, 
+    user_id: Optional[str] = None,
     db: Session = Depends(get_db),
     current_app: Optional[Application] = Depends(get_order_context_app)
 ):
     app_id = current_app.id if current_app else None
-    return OrderService.get_orders(db, application_id=app_id, skip=skip, limit=limit)
+    return OrderService.get_orders(db, application_id=app_id, user_id=user_id, skip=skip, limit=limit)
 
 @router.get("/count")
 def read_orders_count(
+    user_id: Optional[str] = None,
     db: Session = Depends(get_db),
     current_app: Optional[Application] = Depends(get_order_context_app)
 ):
     app_id = current_app.id if current_app else None
-    return {"count": OrderService.get_orders_count(db, application_id=app_id)}
+    return {"count": OrderService.get_orders_count(db, application_id=app_id, user_id=user_id)}
 
 @router.get("/{order_id}", response_model=Order)
 def read_order(

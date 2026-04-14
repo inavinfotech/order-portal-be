@@ -10,6 +10,8 @@ class OrderItem(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     order_id = Column(String, ForeignKey("orders.id"), nullable=False, index=True)
     product_id = Column(String, index=True)
+    product_name = Column(String)
+    sku = Column(String)
     quantity = Column(Integer)
     unit_price = Column(Numeric(12, 2))
     created_at = Column(DateTime(timezone=True), server_default=func.now())

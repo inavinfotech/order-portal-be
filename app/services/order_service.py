@@ -28,17 +28,21 @@ class OrderService:
         return query.first()
 
     @staticmethod
-    def get_orders(db: Session, application_id: Optional[str] = None, skip: int = 0, limit: int = 100) -> List[Order]:
+    def get_orders(db: Session, application_id: Optional[str] = None, user_id: Optional[str] = None, skip: int = 0, limit: int = 100) -> List[Order]:
         query = db.query(Order).filter(Order.deleted_at == None)
         if application_id:
             query = query.filter(Order.application_id == application_id)
+        if user_id:
+            query = query.filter(Order.user_id == user_id)
         return query.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
-    def get_orders_count(db: Session, application_id: Optional[str] = None) -> int:
+    def get_orders_count(db: Session, application_id: Optional[str] = None, user_id: Optional[str] = None) -> int:
         query = db.query(Order).filter(Order.deleted_at == None)
         if application_id:
             query = query.filter(Order.application_id == application_id)
+        if user_id:
+            query = query.filter(Order.user_id == user_id)
         return query.count()
 
     @staticmethod
