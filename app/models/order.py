@@ -11,6 +11,8 @@ class Order(Base):
     application_id = Column(String, ForeignKey("applications.id"), nullable=False, index=True)
     user_id = Column(String, nullable=False, index=True)
     customer_name = Column(String, index=True)
+    product_name = Column(String)
+    quantity = Column(Integer)
     total_amount = Column(Numeric(12, 2))
     currency = Column(String, default="USD")
     status = Column(String, ForeignKey("workflow_states.name"), default="created", index=True)
