@@ -105,3 +105,7 @@ app.include_router(settings_api.router, prefix="/settings/admin", tags=["Setting
 @app.get("/")
 def root():
     return {"message": "Welcome to the Order Management System (OMS) Microservice"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8003, reload=True)
