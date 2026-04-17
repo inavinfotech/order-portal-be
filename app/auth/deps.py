@@ -45,8 +45,8 @@ def verify_dashboard_auth(
     
     # Fallback: legacy header-based auth
     if x_dashboard_email and x_dashboard_password:
-        expected_email = os.getenv("DASHBOARD_EMAIL", "admin@example.com")
-        expected_pass = os.getenv("DASHBOARD_PASSWORD", "password123")
+        expected_email = os.environ["DASHBOARD_EMAIL"]
+        expected_pass = os.environ["DASHBOARD_PASSWORD"]
         
         if x_dashboard_email == expected_email and x_dashboard_password == expected_pass:
             return True
@@ -88,8 +88,8 @@ def get_order_context_app(
 
     # Fallback: legacy header-based auth
     if x_dashboard_email and x_dashboard_password:
-        expected_email = os.getenv("DASHBOARD_EMAIL", "admin@example.com")
-        expected_pass = os.getenv("DASHBOARD_PASSWORD", "password123")
+        expected_email = os.environ["DASHBOARD_EMAIL"]
+        expected_pass = os.environ["DASHBOARD_PASSWORD"]
         if x_dashboard_email == expected_email and x_dashboard_password == expected_pass:
             if x_app_id:
                 app = db.query(Application).filter(Application.id == x_app_id).first()

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.schemas.order import OrderCreate, OrderUpdate, Order, OrderTransition
 from app.services.order_service import OrderService
 from app.auth.deps import get_current_app, verify_dashboard_auth, get_order_context_app
 from app.models.application import Application
+from app.webhooks.sender import send_webhook
 from app.exceptions import (
     OrderValidationError,
     TransitionError,
@@ -12,6 +13,7 @@ from app.exceptions import (
     ProcessingDisabledError,
 )
 from typing import List, Optional
+from datetime import datetime
 
 router = APIRouter()
 
@@ -31,6 +33,7 @@ def _handle_service_error(e: Exception):
 def transition_order(
     order_id: str, 
     transition: OrderTransition, 
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_app: Optional[Application] = Depends(get_order_context_app)
 ):
@@ -46,6 +49,21 @@ def transition_order(
             notes=transition.notes,
             force=transition.force
         )
+        
+        # Fire Webhook
+        if order and order.application:
+            background_tasks.add_task(
+                send_webhook, 
+                order.application, 
+                "order.transitioned",
+                {
+                    "order_id": order.id,
+                    "old_state": order.history[-1].from_state if order.history else None,
+                    "new_state": order.status,
+                    "timestamp": datetime.now().isoformat()
+                }
+            )
+            
     except Exception as e:
         _handle_service_error(e)
     if not order:
