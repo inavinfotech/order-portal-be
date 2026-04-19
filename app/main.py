@@ -22,8 +22,8 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     
     # 2. Seed data
-    from app.db.seeding import seed_data
-    seed_data()
+    # from app.db.seeding import seed_data
+    # seed_data()
     
     yield
 
@@ -52,6 +52,16 @@ async def bad_request_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=400,
         content={"error": "Bad Request", "detail": str(exc), "code": 400}
+    )
+
+from fastapi.exceptions import RequestValidationError
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logger.error(f"Validation Error on {request.url}: {exc.errors()}")
+    return JSONResponse(
+        status_code=422,
+        content={"error": "Unprocessable Entity", "detail": exc.errors(), "code": 422}
     )
 
 @app.exception_handler(404)

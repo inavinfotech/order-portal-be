@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional, List
 import uuid
@@ -23,7 +23,7 @@ class OrderItem(OrderItemBase):
         from_attributes = True
 
 class OrderBase(BaseModel):
-    application_id: str
+    application_id: Optional[str] = None
     user_id: str
     customer_name: str
     product_name: str
@@ -36,7 +36,8 @@ class OrderBase(BaseModel):
 class OrderCreate(OrderBase):
     items: List[OrderItemCreate]
 
-    @validator('items')
+    @field_validator('items')
+    @classmethod
     def items_not_empty(cls, v):
         if not v or len(v) == 0:
             raise ValueError('Order must have at least one item')
