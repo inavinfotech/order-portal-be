@@ -14,6 +14,10 @@ except ImportError:
 from app.db.session import engine, Base
 from app.api import health as health_api, orders as orders_api, apps as apps_api, workflow as workflow_api, dashboard as dashboard_api, auth as auth_api, settings as settings_api
 from app.models import application, order, order_item, workflow, history, setting
+
+import logging
+from contextlib import asynccontextmanager
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -76,13 +80,13 @@ async def not_found_handler(request: Request, exc: Exception):
 
 # Include routers
 API_V1_STR = "/api/v1"
-app.include_router(health_api.router, prefix=f"{API_V1_STR}/health", tags=["Health"])
+app.include_router(health_api.router, prefix=f"{API_V1_STR}", tags=["Health"])
 app.include_router(auth_api.router, prefix=f"{API_V1_STR}/auth", tags=["Authentication"])
 app.include_router(apps_api.router, prefix=f"{API_V1_STR}/apps", tags=["Applications"])
 app.include_router(orders_api.router, prefix=f"{API_V1_STR}/orders", tags=["Orders"])
 app.include_router(workflow_api.router, prefix=f"{API_V1_STR}/workflow", tags=["Workflow"])
 app.include_router(dashboard_api.router, prefix=f"{API_V1_STR}/dashboard", tags=["Dashboard"])
-app.include_router(settings_api.router, prefix=f"{API_V1_STR}/settings/admin", tags=["Settings Admin"])
+app.include_router(settings_api.router, prefix=f"{API_V1_STR}/settings", tags=["Settings Admin"])
 
 @app.get("/")
 def root():

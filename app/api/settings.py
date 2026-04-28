@@ -7,7 +7,7 @@ from app.auth.deps import verify_dashboard_auth
 
 router = APIRouter()
 
-@router.get("/")
+@router.get("/admin")
 def get_settings(db: Session = Depends(get_db), _ = Depends(verify_dashboard_auth)):
     settings = db.query(Setting).all()
     
@@ -27,7 +27,7 @@ def get_settings(db: Session = Depends(get_db), _ = Depends(verify_dashboard_aut
             
     return {s.key: s.value for s in settings}
 
-@router.post("/")
+@router.post("/admin")
 def update_settings(update: SettingUpdate, db: Session = Depends(get_db), _ = Depends(verify_dashboard_auth)):
     response_data = {"status": "success"}
     
