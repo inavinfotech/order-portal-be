@@ -5,10 +5,13 @@ import uuid
 
 class OrderItemBase(BaseModel):
     product_id: str
+    variant_id: Optional[str] = None
+    variant_name: Optional[str] = None
     product_name: Optional[str] = None
     sku: Optional[str] = None
     quantity: int = Field(..., gt=0)
     unit_price: float = Field(..., ge=0)
+    image: Optional[str] = None
 
 class OrderItemCreate(OrderItemBase):
     pass
@@ -32,6 +35,7 @@ class OrderBase(BaseModel):
     currency: str = "USD"
     status: Optional[str] = "created"
     idempotency_key: Optional[str] = None
+    image: Optional[str] = None
 
 class OrderCreate(OrderBase):
     items: List[OrderItemCreate]

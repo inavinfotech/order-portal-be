@@ -18,24 +18,17 @@ logger = logging.getLogger("oms-service")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 1. Create database tables manually (no Alembic)
-    Base.metadata.create_all(bind=engine)
-    
-    # 2. Seed data
-    # from app.db.seeding import seed_data
-    # seed_data()
-    
+    Base.metadata.create_all(bind=engine)    
     yield
-
+ 
 app = FastAPI(title="OMS Microservice", version="1.0.0", lifespan=lifespan)
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"], # BFF only
+    allow_origins=["http://localhost:8000", "*"], # BFF only
     allow_credentials=True,
     allow_methods=["*"], 
-    allow_headers=["*"], 
+    allow_headers=["*"],  
 )
 
 @app.exception_handler(Exception)

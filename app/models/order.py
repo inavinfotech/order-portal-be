@@ -17,6 +17,7 @@ class Order(Base):
     currency = Column(String, default="USD")
     status = Column(String, ForeignKey("workflow_states.name"), default="created", index=True)
     idempotency_key = Column(String, nullable=True, index=True)
+    image = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True, index=True)

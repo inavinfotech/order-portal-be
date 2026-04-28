@@ -10,7 +10,16 @@ except ImportError:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Database connection URL
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'sql_app.db')}")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+if not SQLALCHEMY_DATABASE_URL:
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'sql_app.db')}"
+elif SQLALCHEMY_DATABASE_URL.startswith("sqlite:///./"):
+    # Convert relative sqlite path to absolute
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("./", BASE_DIR + "/")
+
+import logging
+logger = logging.getLogger("uvicorn.error")
+logger.info(f"Connecting to database: {SQLALCHEMY_DATABASE_URL}")
 
 # Create SQLAlchemy engine
 engine = create_engine(
