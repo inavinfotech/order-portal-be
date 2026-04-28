@@ -9,7 +9,7 @@ from app.schemas.application import (
     AppDomainsUpdate,
 )
 from app.models.application import Application as ApplicationModel
-from app.auth.security import get_secret_hash
+from app.auth.security import get_secret_hash, generate_api_key, generate_api_secret
 from app.auth.deps import verify_dashboard_auth
 from typing import List
 from datetime import datetime, timezone
@@ -28,11 +28,11 @@ def create_app(
     
     # Generate keys if not provided
     if not app_data.get("api_key"):
-        app_data["api_key"] = f"oms_key_{secrets.token_hex(6)}"
+        app_data["api_key"] = generate_api_key()
     
     plain_secret = app_data.get("api_secret")
     if not plain_secret:
-        plain_secret = f"oms_sec_{secrets.token_hex(12)}"
+        plain_secret = generate_api_secret()
         app_data["api_secret"] = plain_secret
     
     # Store hashed secret
