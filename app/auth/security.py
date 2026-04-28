@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import os
 import secrets
 
-JWT_SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "oms_super_secret_key_change_in_production_2026")
 JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_MINUTES = int(os.environ.get("JWT_EXPIRE_MINUTES", "480"))
 

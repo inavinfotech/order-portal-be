@@ -1,14 +1,19 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.api import health as health_api, orders as orders_api, apps as apps_api, workflow as workflow_api, dashboard as dashboard_api, auth as auth_api, settings as settings_api
+from fastapi.exceptions import RequestValidationError
+import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from app.db.session import engine, Base
+from app.api import health as health_api, orders as orders_api, apps as apps_api, workflow as workflow_api, dashboard as dashboard_api, auth as auth_api, settings as settings_api
 from app.models import application, order, order_item, workflow, history, setting
-
-import logging
-from contextlib import asynccontextmanager
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -25,7 +30,12 @@ app = FastAPI(title="OMS Microservice", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", "*"], # BFF only
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"], 
     allow_headers=["*"],  
