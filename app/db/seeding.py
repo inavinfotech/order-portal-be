@@ -1,9 +1,8 @@
-from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
-from app.models.workflow import WorkflowState
-from app.models.application import Application
-from app.auth.security import get_secret_hash
+from app.models.workflow import WorkflowState, WorkflowTransition
+from app.models.setting import Setting
 import logging
+import uuid
 
 logger = logging.getLogger("oms-service")
 
@@ -13,7 +12,7 @@ def seed_data():
         # 1. Seed Workflow States
         if db.query(WorkflowState).count() == 0:
             logger.info("Seeding initial workflow states...")
-            states = [
+            states_data = [
                 {"name": "created", "description": "Order has been created"},
                 {"name": "pending", "description": "Order is pending approval"},
                 {"name": "approved", "description": "Order has been approved"},
@@ -24,32 +23,50 @@ def seed_data():
                 {"name": "refunded", "description": "Order has been refunded"},
             ]
 
-            for state_data in states:
-                state = WorkflowState(**state_data)
+            state_objs = {}
+            for data in states_data:
+                state = WorkflowState(id=str(uuid.uuid4()), **data)
                 db.add(state)
+                state_objs[data["name"]] = state
+            
+            db.flush() # Flush to get IDs
+
+            # 2. Seed Transitions
+            logger.info("Seeding workflow transitions...")
+            transitions = [
+                ("created", "processing", "Start Processing"),
+                ("created", "cancelled", "Cancel Order"),
+                ("processing", "shipped", "Ship Order"),
+                ("processing", "cancelled", "Cancel Order"),
+                ("shipped", "delivered", "Mark as Delivered"),
+                ("shipped", "cancelled", "Cancel Order (Return)"),
+                ("delivered", "refunded", "Refund Order"),
+            ]
+
+            for from_name, to_name, trans_name in transitions:
+                if from_name in state_objs and to_name in state_objs:
+                    trans = WorkflowTransition(
+                        id=str(uuid.uuid4()),
+                        name=trans_name,
+                        from_state_id=state_objs[from_name].id,
+                        to_state_id=state_objs[to_name].id
+                    )
+                    db.add(trans)
             
             db.commit()
-            logger.info("Workflow states seeding complete.")
+            logger.info("Workflow states and transitions seeding complete.")
 
-        # 2. Seed Website Application
-        # We use the credentials defined in website/backend/.env
-        # website_api_key = "app_c0e41c8423a83e1bff7dfb88"
-        # website_api_secret = "wjyVuQav2YYD4171WAfOhibn2PyCmPI84SjFJ9mx1kQ"
-        
-        # existing_app = db.query(Application).filter(Application.api_key == website_api_key).first()
-        # if not existing_app:
-        #     logger.info("Seeding website application...")
-        #     new_app = Application(
-        #         name="TianaLuxora Website",
-        #         api_key=website_api_key,
-        #         api_secret=get_secret_hash(website_api_secret),
-        #         is_active=True,
-        #         is_live_mode=False,
-        #         allowed_domains="*"
-        #     )
-        #     db.add(new_app)
-        #     db.commit()
-        #     logger.info("Website application seeding complete.")
+        # 3. Seed Default Settings
+        if db.query(Setting).filter(Setting.key == "global_order_processing_enabled").count() == 0:
+            logger.info("Seeding global order processing setting...")
+            new_setting = Setting(
+                key="global_order_processing_enabled",
+                value="true",
+                description="Enable or disable order processing globally"
+            )
+            db.add(new_setting)
+            db.commit()
+            logger.info("Settings seeding complete.")
             
     except Exception as e:
         logger.error(f"Error seeding data: {e}")

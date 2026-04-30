@@ -14,9 +14,7 @@ except ImportError:
 from app.db.session import engine, Base
 from app.api import health as health_api, orders as orders_api, apps as apps_api, workflow as workflow_api, dashboard as dashboard_api, auth as auth_api, settings as settings_api
 from app.models import application, order, order_item, workflow, history, setting
-
-import logging
-from contextlib import asynccontextmanager
+from app.db.seeding import seed_data
 
 # Configure logging
 logging.basicConfig(
@@ -27,7 +25,10 @@ logger = logging.getLogger("oms-service")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)    
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    # Auto-seed data
+    seed_data()
     yield
  
 app = FastAPI(title="OMS Microservice", version="1.0.0", lifespan=lifespan)
@@ -60,8 +61,6 @@ async def bad_request_handler(request: Request, exc: Exception):
         status_code=400,
         content={"error": "Bad Request", "detail": str(exc), "code": 400}
     )
-
-from fastapi.exceptions import RequestValidationError
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
