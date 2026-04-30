@@ -61,8 +61,7 @@ def seed_data():
             logger.info("Seeding global order processing setting...")
             new_setting = Setting(
                 key="global_order_processing_enabled",
-                value="true",
-                description="Enable or disable order processing globally"
+                value="true"
             )
             db.add(new_setting)
             db.commit()
