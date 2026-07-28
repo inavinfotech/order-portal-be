@@ -18,8 +18,8 @@ class LoginResponse(BaseModel):
 
 @router.post("/login", response_model=LoginResponse)
 def login(request: LoginRequest):
-    expected_email = os.getenv("DASHBOARD_EMAIL", "admin@example.com")
-    expected_pass = os.getenv("DASHBOARD_PASSWORD", "password123")
+    expected_email = os.getenv("DASHBOARD_EMAIL", "")
+    expected_pass = os.getenv("DASHBOARD_PASSWORD", "")
     
     if request.email != expected_email or request.password != expected_pass:
         raise HTTPException(
