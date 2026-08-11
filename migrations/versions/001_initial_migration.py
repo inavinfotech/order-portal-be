@@ -19,6 +19,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    existing_tables = inspector.get_table_names()
+
+    if "applications" in existing_tables:
+        return
+
     # Create applications table
     op.create_table(
         'applications',
@@ -139,6 +146,13 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    existing_tables = inspector.get_table_names()
+
+    if "applications" not in existing_tables:
+        return
+
     op.drop_index(op.f('ix_settings_key'), table_name='settings')
     op.drop_table('settings')
     op.drop_index(op.f('ix_order_status_history_order_id'), table_name='order_status_history')
