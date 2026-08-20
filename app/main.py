@@ -12,7 +12,7 @@ except ImportError:
     pass
 
 from app.db.session import engine, Base
-from app.api import health as health_api, orders as orders_api, apps as apps_api, workflow as workflow_api, dashboard as dashboard_api, auth as auth_api, settings as settings_api
+from app.api import health as health_api, orders as orders_api, apps as apps_api, workflow as workflow_api, dashboard as dashboard_api, auth as auth_api, settings as settings_api, webhooks as webhooks_api
 from app.models import application, order, order_item, workflow, history, setting
 from app.db.seeding import seed_data
 
@@ -86,6 +86,7 @@ app.include_router(orders_api.router, prefix=f"{API_V1_STR}/orders", tags=["Orde
 app.include_router(workflow_api.router, prefix=f"{API_V1_STR}/workflow", tags=["Workflow"])
 app.include_router(dashboard_api.router, prefix=f"{API_V1_STR}/dashboard", tags=["Dashboard"])
 app.include_router(settings_api.router, prefix=f"{API_V1_STR}/settings", tags=["Settings Admin"])
+app.include_router(webhooks_api.router, prefix=f"{API_V1_STR}", tags=["Webhooks"])
 
 @app.get("/")
 def root():
